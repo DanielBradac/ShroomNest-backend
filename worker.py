@@ -3,8 +3,8 @@ def run_errand(sensor_data, hum_settings, ip_settings, log_manager, init_run):
     try:      
         if init_run:
             on_off = "ON" if hum_settings.humidifier_on else "OFF"
-            log_manager.log_event("info", f"INIT: Humidifier {on_off}", f"Turning humidifier {on_off} on init run")
-            hum_settings.toggle_humidifier(ip_settings.humidifier_ip, hum_settings.humidifier_on)
+            log_manager.log_event("info", f"INIT: Switching humidifier {on_off}", f"Switching humidifier {on_off} on init run")
+            hum_settings.toggle_humidifier(ip_settings.humidifier_ip, hum_settings.humidifier_on, log_manager)
             return
         
         if (hum_settings.humidifier_on and hum_settings.last_humidity != 0):
@@ -20,16 +20,12 @@ def run_errand(sensor_data, hum_settings, ip_settings, log_manager, init_run):
         
         if hum_settings.is_automatic():
             if sensor_data.humidity < hum_settings.range_from and not hum_settings.humidifier_on:
-                formatted_message = f"Turning humidifier ON. Humidity: {sensor_data.humidity} %, target range: {hum_settings.range_from} % - {hum_settings.range_to} %"
-                
-                log_manager.log_event("info", "AUTO: Humidifier ON", formatted_message)
-                hum_settings.toggle_humidifier(ip_settings.humidifier_ip, True)
+                log_manager.log_event("info", "AUTO: Switching humidifier ON", f"Switching humidifier ON. Humidity: {sensor_data.humidity} %, target range: {hum_settings.range_from} % - {hum_settings.range_to} %")
+                hum_settings.toggle_humidifier(ip_settings.humidifier_ip, True, log_manager)
             
             elif sensor_data.humidity > hum_settings.range_to and hum_settings.humidifier_on:
-                formatted_message = f"Turning humidifier OFF. Humidity: {sensor_data.humidity} %, target range: {hum_settings.range_from} % - {hum_settings.range_to} %"
-
-                log_manager.log_event("info", "AUTO: Humidifier OFF", formatted_message)
-                hum_settings.toggle_humidifier(ip_settings.humidifier_ip, False)
+                log_manager.log_event("info", "AUTO: Switching humidifier OFF", f"Switching humidifier OFF. Humidity: {sensor_data.humidity} %, target range: {hum_settings.range_from} % - {hum_settings.range_to} %")
+                hum_settings.toggle_humidifier(ip_settings.humidifier_ip, False, log_manager)
          
     except Exception as e:
         log_manager.log_event("error", "Humidifier Error", str(e))

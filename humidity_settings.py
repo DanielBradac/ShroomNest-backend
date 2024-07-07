@@ -52,17 +52,19 @@ class HumiditySettings:
         
         if (not self.is_automatic()):
             on_off = "ON" if humidifier_on else "OFF"
-            log_manager.log_event("info", f"MANUAL: Humidifier {on_off}", f"Manual toggle {on_off}")
-            self.toggle_humidifier(humidifier_ip, humidifier_on)
-            
+            log_manager.log_event("info", f"MANUAL: Switching humidifier {on_off}", f"Manual toggle {on_off}")
+            self.toggle_humidifier(humidifier_ip, humidifier_on, log_manager)
     
     def is_automatic(self):
         return self.mode == "auto"
     
-    def toggle_humidifier(self, humidifier_ip: String, on: Boolean):
+    def toggle_humidifier(self, humidifier_ip: String, on: Boolean, log_manager):
         url = f"http://{humidifier_ip}/cm?cmnd=Power%20{'On' if on else 'Off'}"
-        
-        response = requests.post(url)
+        try:
+            response = requests.post(url)
+        except Exception as e:
+            raise Exception(f"Unable to toggle humidifier, error: {str(e)}")
+            
         if response.status_code != 200:
             raise Exception(f"Unable to toggle humidifier, status code: {response.status_code}, raw response: {response.text}")
         
@@ -70,16 +72,11 @@ class HumiditySettings:
         if "POWER" in resp_json:
             if on and resp_json["POWER"] == "ON":
                 self.humidifier_on = True
-                return
-            if not on and resp_json["POWER"] == "OFF":
+            elif not on and resp_json["POWER"] == "OFF":
                 self.humidifier_on = False
-                return
-            raise Exception(f"Unable to toggle humidifier: invalid response in correlation to toggle setting (on = {on}), raw response: {response.text}")
-            
-        else:
-            raise Exception(f"Unable to toggle humidifier: invalid response, raw response: {response.text}")
+            else:
+                raise Exception(f"Unable to toggle humidifier: invalid response in correlation to toggle setting (on = {on}), raw response: {response.text}")
+            log_manager.log_event("info", "Humidifier TOGGLE DONE", f"Humidifier switched {"ON" if on else "OFF"}")
+            return
         
-        
-        
-
-
+        raise Exception(f"Unable to toggle humidifier: invalid response, raw response: {response.text}")

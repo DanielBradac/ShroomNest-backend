@@ -3,7 +3,7 @@ import time
 from utils import local_time_formatted
 
 # How many log messages can there be in a single list - we don't have RAM to spare
-MAX_LOG_SIZE = 20
+MAX_LOG_SIZE = 30
 # if the worker reports this amout of out of water calls, we log it
 MAX_OUT_OF_WATER_CALLS = 5
 
