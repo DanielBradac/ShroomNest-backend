@@ -9,9 +9,9 @@ from sensor import *
 from worker import *
 from log_manager import *
 from microdot import Microdot, Response
-
+  
 # Humidity Settings init
-hum_settings = HumiditySettings(80, 90, "auto", False)
+hum_settings = HumiditySettings(80, 90, "manual", False)
 
 # IPSettings init
 ip_settings = IPSettings()
@@ -55,7 +55,7 @@ async def purge_logs(request):
 @app.post('/api/updateHumiditySettings') 
 async def update_humidity_settings(request): 
     try:
-        hum_settings.update_from_json(request.json, ip_settings.humidifier_ip)
+        hum_settings.update_from_json(request.json, ip_settings.humidifier_ip, log_manager)
         return json.dumps(hum_settings.serialize()), 200, {"Content-Type": "application/json"}
     except ValueError as e:
         return Response(None, 400, None, str(e))
@@ -83,16 +83,17 @@ async def update_state(period):
         
 # Main
 async def main():
-    background_task = asyncio.create_task(update_state(10))
+    background_task = asyncio.create_task(update_state(30))
     await app.start_server(port=9090)
 
 try:
     main_led = machine.Pin("LED", machine.Pin.OUT)
 
     # Starting initial sequence, blink the led once and try out the sensor
-    init_sequence(main_led)
+    init_sequence(main_led, log_manager)
     # LED is turned on - everything is set up
     main_led.on()
+    log_manager.log_event("info", "INIT Done", "INIT sequence done")
     # Start server
     asyncio.run(main())
     
