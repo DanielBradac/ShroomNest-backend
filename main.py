@@ -2,7 +2,8 @@ import machine
 import json
 import asyncio
 
-from humidity_settings import *
+#from humidity_settings import *
+from default_settings import *
 from ip_settings import *
 from utils import *
 from sensor import *
@@ -11,7 +12,7 @@ from log_manager import *
 from microdot import Microdot, Response
   
 # Humidity Settings init
-hum_settings = HumiditySettings(80, 90, "manual", False)
+hum_settings = get_init_hum_setting()
 
 # IPSettings init
 ip_settings = IPSettings()
@@ -74,17 +75,17 @@ async def update_humidity_settings(request):
 
 
 # Function for periodical update
-async def update_state(period):
+async def update_state(errand_per):
     # Init run
-    run_errand(get_sensor_data(), hum_settings, ip_settings, log_manager, True)
+    run_errand(get_sensor_data(), hum_settings, ip_settings, log_manager, errand_per, True)
     while True:
-        await asyncio.sleep(period)
-        run_errand(get_sensor_data(), hum_settings, ip_settings, log_manager, False)
+        await asyncio.sleep(errand_per)
+        run_errand(get_sensor_data(), hum_settings, ip_settings, log_manager, errand_per, False)
         
 # Main
 async def main():
-    background_task = asyncio.create_task(update_state(30))
-    await app.start_server(port=9090)
+    background_task = asyncio.create_task(update_state(ERRAND_PERIOD))
+    await app.start_server(port=PORT)
 
 try:
     main_led = machine.Pin("LED", machine.Pin.OUT)
