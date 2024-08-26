@@ -76,11 +76,14 @@ async def update_humidity_settings(request):
 
 # Function for periodical update
 async def update_state(errand_per):
-    # Init run
-    run_errand(get_sensor_data(), hum_settings, ip_settings, log_manager, errand_per, True)
-    while True:
-        await asyncio.sleep(errand_per)
-        run_errand(get_sensor_data(), hum_settings, ip_settings, log_manager, errand_per, False)
+    try:
+        # Init run
+        run_errand(get_sensor_data(), hum_settings, ip_settings, log_manager, errand_per, True)
+        while True:
+            await asyncio.sleep(errand_per)
+            run_errand(get_sensor_data(), hum_settings, ip_settings, log_manager, errand_per, False)
+    except Exception as e:
+        log_manager.log_event("error", "Errand ERROR", str(e))
         
 # Main
 async def main():
@@ -105,3 +108,4 @@ except Exception as e:
 finally:
     # End of program - turn the led off
     main_led.off()
+
