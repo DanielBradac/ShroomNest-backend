@@ -2,7 +2,6 @@ import machine
 import json
 import asyncio
 import GPIO
-import sys
 
 from humidity_settings import *
 from default_settings import *

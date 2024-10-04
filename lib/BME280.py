@@ -1,4 +1,3 @@
-from machine import I2C
 import time
 
 # BME280 default address.

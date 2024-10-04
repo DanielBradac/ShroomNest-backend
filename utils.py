@@ -1,4 +1,3 @@
-import machine
 import utime
 import network
 import ntptime
