@@ -1,8 +1,10 @@
 import machine
 import json
 import asyncio
+import GPIO
+import sys
 
-#from humidity_settings import *
+from humidity_settings import *
 from default_settings import *
 from ip_settings import *
 from utils import *
@@ -10,7 +12,8 @@ from sensor import *
 from worker import *
 from log_manager import *
 from microdot import Microdot, Response
-  
+from neopixel import NeoPixel
+
 # Humidity Settings init
 hum_settings = get_init_hum_setting()
 
@@ -90,22 +93,30 @@ async def main():
     background_task = asyncio.create_task(update_state(ERRAND_PERIOD))
     await app.start_server(port=PORT)
 
-try:
-    main_led = machine.Pin("LED", machine.Pin.OUT)
+main_led = NeoPixel(machine.Pin(GPIO.RGB_PIN, machine.Pin.OUT), 1)
 
+try:
     # Starting initial sequence, blink the led once and try out the sensor
     init_sequence(main_led, log_manager)
     # LED is turned on - everything is set up
-    main_led.on()
+    led_on_green(main_led)
     log_manager.log_event("info", "INIT Done", "INIT sequence done")
     # Start server
     asyncio.run(main())
     
 except KeyboardInterrupt:
     print("Interrupted from keyboard")
+    
+except OSError as e:
+    led_on_red(main_led)
+    log_exception(e)
+    # Probably wifi error, reboot device
+    machine.reset()
+    
 except Exception as e:
-    print("Error: ", e)
+    log_exception(e)
+    
+        
 finally:
-    # End of program - turn the led off
-    main_led.off()
-
+    # End of program, something went wrong - turn the led RED
+    led_on_red(main_led)

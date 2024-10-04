@@ -1,5 +1,5 @@
 class IPSettings:
-    def __init__(self, humidifier_ip: String = "192.168.0.130"):
+    def __init__(self, humidifier_ip: String = "192.168.1.180"):
         self.humidifier_ip = humidifier_ip
     
     def serialize(self):

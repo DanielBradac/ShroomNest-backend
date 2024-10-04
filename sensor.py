@@ -1,6 +1,7 @@
-import dht
-import machine
-from default_settings import HUM_SENSOR_PIN
+import GPIO
+
+from BME280 import BME280
+from machine import Pin, I2C
 
 # Data class for data pulled out of sensor
 class SensorData:
@@ -13,8 +14,10 @@ class SensorData:
             "temperature": self.temperature, "humudity": self.humidity
         }
 
+# ESP32 - Pin assignment
+i2c = I2C(scl=Pin(GPIO.D1), sda=Pin(GPIO.D0), freq=10000)
+bme = BME280(i2c=i2c)
+
 # Function reads temperature and humidity from sensor
 def get_sensor_data():
-    sensor = dht.DHT22(machine.Pin(HUM_SENSOR_PIN))
-    sensor.measure()
-    return SensorData(sensor.temperature(), sensor.humidity())
+    return SensorData(bme.temperature, bme.humidity)

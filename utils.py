@@ -3,16 +3,29 @@ import utime
 import network
 import ntptime
 import time
+import sys
 
 from sensor import *
 
-# Blinks the diod
+def led_on_green(led):
+    led[0] = (20, 0, 0)
+    led.write()
+
+def led_on_red(led):
+    led[0] = (0, 20, 0)
+    led.write()
+    
+def led_off(led):
+    led[0] = (0, 0, 0)
+    led.write()
+
+# Blinks the led
 def blink(led, length):
-    led.off()
+    led_off(led)
     utime.sleep(length)
-    led.on()
+    led_on_green(led)
     utime.sleep(length)
-    led.off()
+    led_off(led)
     utime.sleep(length)
 
 # Initial sequence - try out the sensors and connect to wifi
@@ -44,8 +57,7 @@ def init_sensor(main_led):
 # Connects to wifi - 20 tries by default
 def wifi_connect(main_led, tries = 20):
     wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)    
-    
+    wlan.active(True)
     while not wlan.isconnected() and tries > 0:
         wlan.connect("Ateliér_2.4g", "3prstyvprdeli")
         tries -= 1
@@ -60,3 +72,10 @@ def local_time_formatted():
     cz_offset = 2 * 3600
     lt = time.localtime(time.time() + cz_offset)
     return f"{lt[0]:04}-{lt[1]:02}-{lt[2]:02} {lt[3]:02}:{lt[4]:02}:{lt[5]:02}"
+
+def log_exception(e: Exception):
+    sys.print_exception(e)
+    with open("error_log.txt", "a") as log_file:
+        log_file.write("\nTime: {}\n".format(local_time_formatted()))
+        sys.print_exception(e, log_file)
+        log_file.write("\n-----\n")
