@@ -82,7 +82,7 @@ class HumiditySettings:
         
         if (self.is_manual()):
             on_off = "ON" if humidifier_on else "OFF"
-            log_manager.log_event("info", f"MANUAL: Switching humidifier {on_off}", f"Manual toggle {on_off}")
+            log_manager.log_event("info", f"Humidifier - MANUAL", f"Manual toggle {on_off}")
             self.toggle_humidifier(humidifier_ip, humidifier_on, log_manager)
             
         if (not self.is_periodic()):

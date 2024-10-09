@@ -4,6 +4,7 @@ import asyncio
 import GPIO
 
 from humidity_settings import *
+from ventilation_settings import *
 from default_settings import *
 from ip_settings import *
 from utils import *
@@ -13,8 +14,9 @@ from log_manager import *
 from microdot import Microdot, Response
 from neopixel import NeoPixel
 
-# Humidity Settings init
-hum_settings = get_init_hum_setting()
+# Init settings
+hum_settings = get_init_hum_settings()
+vent_settings = get_init_vent_settings()
 
 # IPSettings init
 ip_settings = IPSettings()
@@ -37,6 +39,13 @@ async def get_status(request):
 async def get_humidity_settings(request): 
     try:
         return json.dumps(hum_settings.serialize()), 200, {"Content-Type": "application/json"}
+    except Exception as e:
+        return Response(None, 500, None, str(e))
+
+@app.get('/api/getVentilationSettings') 
+async def get_ventilation_settings(request): 
+    try:
+        return json.dumps(vent_settings.serialize()), 200, {"Content-Type": "application/json"}
     except Exception as e:
         return Response(None, 500, None, str(e))
 
@@ -64,9 +73,19 @@ async def update_humidity_settings(request):
         return Response(None, 400, None, str(e))
     except Exception as e:
         return Response(None, 500, None, str(e))
-    
+
+@app.post('/api/updateVentilationSettings') 
+async def update_ventilation_settings(request): 
+    try:
+        vent_settings.update_from_json(request.json, ip_settings.fan_ip, log_manager)
+        return json.dumps(vent_settings.serialize()), 200, {"Content-Type": "application/json"}
+    except ValueError as e:
+        return Response(None, 400, None, str(e))
+    except Exception as e:
+        return Response(None, 500, None, str(e))
+
 @app.post('/api/updateIPSettings') 
-async def update_humidity_settings(request): 
+async def update_ip_settings(request): 
     try:
         ip_settings.update_from_json(request.json)
         return json.dumps(ip_settings.serialize()), 200, {"Content-Type": "application/json"}
@@ -79,11 +98,15 @@ async def update_humidity_settings(request):
 # Function for periodical update
 async def update_state(errand_per):
     try:
-        # Init run
-        run_errand(get_sensor_data(), hum_settings, ip_settings, log_manager, errand_per, True)
+        # Init run - turn led blue
+        led_on_blue(main_led)
+        run_errand(get_sensor_data(), hum_settings, vent_settings, ip_settings, log_manager, errand_per, True)
+        
+        # Init run completed - turn led green, everzthing is setup
+        led_on_green(main_led)
         while True:
             await asyncio.sleep(errand_per)
-            run_errand(get_sensor_data(), hum_settings, ip_settings, log_manager, errand_per, False)
+            run_errand(get_sensor_data(), hum_settings, vent_settings, ip_settings, log_manager, errand_per, False)
     except Exception as e:
         log_manager.log_event("error", "Errand ERROR", str(e))
         
@@ -97,9 +120,7 @@ main_led = NeoPixel(machine.Pin(GPIO.RGB_PIN, machine.Pin.OUT), 1)
 try:
     # Starting initial sequence, blink the led once and try out the sensor
     init_sequence(main_led, log_manager)
-    # LED is turned on - everything is set up
-    led_on_green(main_led)
-    log_manager.log_event("info", "INIT Done", "INIT sequence done")
+    log_manager.log_event("info", "INIT - Hardware", "Sensor and WiFi INIT done")
     # Start server
     asyncio.run(main())
     
@@ -115,7 +136,6 @@ except OSError as e:
 except Exception as e:
     log_exception(e)
     
-        
 finally:
     # End of program, something went wrong - turn the led RED
     led_on_red(main_led)

@@ -9,7 +9,11 @@ from sensor import *
 def led_on_green(led):
     led[0] = (20, 0, 0)
     led.write()
-
+    
+def led_on_blue(led):
+    led[0] = (0, 0, 20)
+    led.write()
+    
 def led_on_red(led):
     led[0] = (0, 20, 0)
     led.write()
