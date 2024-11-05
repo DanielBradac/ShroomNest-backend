@@ -10,6 +10,7 @@ import requests
 # wait_per - time between every toggle of humidifier in period mode, in seconds
 # run_per - for how long should the humidifier be toggled on in period mode, in seconds
 # humidifier_on - is the humidifier currently on?
+# run_with_fan - auto and periodic mode only - should the humidifier run with a fan on?
 
 class HumiditySettings:    
     def __init__(self, range_from: float, range_to: float, wait_per: int, run_per: int, mode: str, humidifier_on: bool, run_with_fan: bool):
@@ -21,8 +22,8 @@ class HumiditySettings:
         self.run_per = run_per
         self.mode = mode
         self.humidifier_on = humidifier_on
+        self.run_with_fan = run_with_fan
         
-        self.last_humidity = 0
         self.reset_periodic_timers()
     
     def validate(self, range_from: float, range_to: float, wait_per: int, run_per: int, mode: str):
@@ -48,7 +49,8 @@ class HumiditySettings:
             "mode": self.mode,
             "humidifierOn": self.humidifier_on,
             "runTime": self.run_time,
-            "waitTime": self.wait_time
+            "waitTime": self.wait_time,
+            "runWithFan": self.run_with_fan
         }
     
     def update_from_json(self, json: str, humidifier_ip: str, log_manager):
@@ -58,6 +60,7 @@ class HumiditySettings:
         humidifier_on = self.humidifier_on
         wait_per = self.wait_per
         run_per = self.run_per
+        run_with_fan = self.run_with_fan
         
         if "rangeFrom" in json:
             range_from = json["rangeFrom"]
@@ -71,6 +74,8 @@ class HumiditySettings:
             wait_per = json["waitPer"]
         if "runPer" in json:
             run_per = json["runPer"]
+        if "runWithFan" in json:
+            run_with_fan = json["runWithFan"]
             
         self.validate(range_from, range_to, wait_per, run_per, mode)
         
@@ -79,6 +84,7 @@ class HumiditySettings:
         self.mode = mode
         self.wait_per = wait_per
         self.run_per = run_per
+        self.run_with_fan = run_with_fan
         
         if (self.is_manual()):
             on_off = "ON" if humidifier_on else "OFF"

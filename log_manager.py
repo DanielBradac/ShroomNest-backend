@@ -2,27 +2,12 @@ from utils import local_time_formatted
 
 # How many log messages can there be in a single list - we don't have RAM to spare
 MAX_LOG_SIZE = 100
-# if the worker reports this amout of out of water calls, we log it
-MAX_OUT_OF_WATER_CALLS = 5
 
 class LogManager:
     info: List[LogMessage] = []
     warning: List[LogMessage] = []
     error: List[LogMessage] = []
     out_of_water_calls = 0
-    
-    def report_out_of_water(self, last_humidity, new_humidity):
-        if (self.out_of_water_calls < MAX_OUT_OF_WATER_CALLS):
-            self.out_of_water_calls += 1
-            
-        if (self.out_of_water_calls == MAX_OUT_OF_WATER_CALLS):
-            formatted_message = f"Humidifier might be out of water. Humidity last errand: {last_humidity} %, now: {new_humidity} %"
-            self.log_event("warning", "Humidifier out of water", formatted_message)
-            # We will wait until the log purge or reset - one out of water message is enough
-            self.out_of_water_calls += 1
-
-    def reset_out_of_water_calls(self):
-        self.out_of_water_calls = 0
     
     def purge_logs(self):
         self.info: List[LogMessage] = []
