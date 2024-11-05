@@ -9,7 +9,7 @@ import requests
 # fan_on - is the fan currently on?
 
 class VentilationSettings:    
-    def __init__(self, wait_per: int, run_per: int, mode: String, fan_on: Boolean):
+    def __init__(self, wait_per: int, run_per: int, mode: str, fan_on: bool):
         self.validate(wait_per, run_per, mode)
         
         self.wait_per = wait_per
@@ -19,7 +19,7 @@ class VentilationSettings:
         
         self.reset_periodic_timers()
     
-    def validate(self, wait_per: int, run_per: int, mode: String):
+    def validate(self, wait_per: int, run_per: int, mode: str):
         if wait_per < 0:
             raise ValueError("wait_per must be a positive number")
         if run_per < 0:
@@ -37,7 +37,7 @@ class VentilationSettings:
             "waitTime": self.wait_time
         }
     
-    def update_from_json(self, json: String, fan_ip: String, log_manager):
+    def update_from_json(self, json: str, fan_ip: str, log_manager):
         mode = self.mode
         fan_on = self.fan_on
         wait_per = self.wait_per
@@ -75,7 +75,7 @@ class VentilationSettings:
         self.wait_time = 0
         self.run_time = 0
     
-    def toggle_fan(self, fan_ip: String, on: Boolean, log_manager):
+    def toggle_fan(self, fan_ip: str, on: bool, log_manager):
         url = f"http://{fan_ip}/cm?cmnd=Power%20{'On' if on else 'Off'}"
         try:
             response = requests.post(url)

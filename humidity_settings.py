@@ -12,7 +12,7 @@ import requests
 # humidifier_on - is the humidifier currently on?
 
 class HumiditySettings:    
-    def __init__(self, range_from: float, range_to: float, wait_per: int, run_per: int, mode: String, humidifier_on: Boolean):
+    def __init__(self, range_from: float, range_to: float, wait_per: int, run_per: int, mode: str, humidifier_on: bool, run_with_fan: bool):
         self.validate(range_from, range_to, wait_per, run_per, mode)
         
         self.range_from = range_from
@@ -25,7 +25,7 @@ class HumiditySettings:
         self.last_humidity = 0
         self.reset_periodic_timers()
     
-    def validate(self, range_from: float, range_to: float, wait_per: int, run_per: int, mode: String):
+    def validate(self, range_from: float, range_to: float, wait_per: int, run_per: int, mode: str):
         if range_from < 0 or range_to > 100:
             raise ValueError("range_from must be in interval <0;100>")
         if range_to < 0 or range_to > 100:
@@ -51,7 +51,7 @@ class HumiditySettings:
             "waitTime": self.wait_time
         }
     
-    def update_from_json(self, json: String, humidifier_ip: String, log_manager):
+    def update_from_json(self, json: str, humidifier_ip: str, log_manager):
         range_from = self.range_from
         range_to = self.range_to
         mode = self.mode
@@ -101,7 +101,7 @@ class HumiditySettings:
         self.wait_time = 0
         self.run_time = 0
     
-    def toggle_humidifier(self, humidifier_ip: String, on: Boolean, log_manager):
+    def toggle_humidifier(self, humidifier_ip: str, on: bool, log_manager):
         url = f"http://{humidifier_ip}/cm?cmnd=Power%20{'On' if on else 'Off'}"
         try:
             response = requests.post(url)

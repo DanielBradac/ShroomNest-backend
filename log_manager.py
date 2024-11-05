@@ -35,7 +35,7 @@ class LogManager:
             list.pop(0)
         list.append(message)
         
-    def log_event(self, category: String, header: String, message: String):
+    def log_event(self, category: str, header: str, message: str):
         if (category == "info"):
             self.add_message(self.info, LogMessage(header, message))
         elif (category == "warning"):
@@ -51,7 +51,7 @@ class LogManager:
         }
 
 class LogMessage:
-    def __init__(self, header: String, message: String):
+    def __init__(self, header: str, message: str):
         self.header = header
         self.message = message
         
