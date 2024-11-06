@@ -1,7 +1,6 @@
 import utime
 import network
-import ntptime
-import time
+from time_utils import sync_time, local_time_formatted
 import sys
 
 from sensor import *
@@ -36,8 +35,8 @@ def init_sequence(main_led, log_manager):
     print(init_sensor(main_led))
     print(wifi_connect(main_led))
     try:
-        ntptime.host = "1.europe.pool.ntp.org"
-        ntptime.settime()
+        sync_time()
+        print("Time synced. Current time: " + local_time_formatted())
     except:
         log_manager.log_event("warning", "Time init failed", f"Time init failed, current time set to: {local_time_formatted()}")
 
@@ -70,11 +69,6 @@ def wifi_connect(main_led, tries = 20):
         return "Wifi initialised - Got IP: " + str(wlan.ifconfig()[0])
     
     raise Exception("Failed to connect to wifi")
-
-def local_time_formatted():
-    cz_offset = 2 * 3600
-    lt = time.localtime(time.time() + cz_offset)
-    return f"{lt[0]:04}-{lt[1]:02}-{lt[2]:02} {lt[3]:02}:{lt[4]:02}:{lt[5]:02}"
 
 def log_exception(e: Exception):
     sys.print_exception(e)

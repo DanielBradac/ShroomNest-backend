@@ -1,4 +1,4 @@
-from utils import local_time_formatted
+from time_utils import local_time_formatted
 
 # How many log messages can there be in a single list - we don't have RAM to spare
 MAX_LOG_SIZE = 100
