@@ -2,7 +2,7 @@
 MicroPython server for monitoring state and adjusting humidity and ventilation inside of a grow tent.
 
 # Hardware requirements
-* ESP32-S3 micochip with MicroPython v1.19+
+* ESP32-S3 microchip with MicroPython v1.19+
 * BME280 humidity and temperature sensor
 
 # Features:
