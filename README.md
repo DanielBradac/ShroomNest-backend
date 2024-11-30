@@ -15,6 +15,9 @@ MicroPython server for monitoring state and adjusting humidity and ventilation i
 - Ventilation management
   - Manual (ON/OFF)
   - Periodic - turns fans on and off after set *run* and *wait* periods
+- Parallel mode
+  - ON - humidifier and fans can run simultaniously.
+  - OFF - humidifier will wait for fans to finish their job before they turn on and vice versa.
 
 # API endpoints
 * /status - current temperature and humidity from BME280
